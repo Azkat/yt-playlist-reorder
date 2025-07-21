@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# YouTube プレイリスト エディター
 
-## Getting Started
+大規模なYouTubeプレイリスト（1000本以上の動画）を効率的に管理・並び替えできるWebアプリケーションです。YouTube APIを使用して、ページネーション付きで動画を表示し、数値指定による素早い並び替えが可能です。
 
-First, run the development server:
+## 機能
+
+- ✅ YouTube OAuth 2.0 認証
+- ✅ プレイリスト一覧表示と選択
+- ✅ 動画リストの表示（ページネーション対応）
+- ✅ 動画の位置指定による並び替え
+- ✅ 検索・フィルタリング機能
+- ✅ 一括更新機能（変更キュー）
+- ✅ エラーハンドリングと進行状況表示
+
+## 技術スタック
+
+- **フロントエンド**: Next.js 15, React 19, TypeScript
+- **認証**: NextAuth.js
+- **スタイリング**: Tailwind CSS
+- **API**: YouTube Data API v3
+- **アイコン**: Lucide React
+
+## セットアップ
+
+### 1. リポジトリのクローン
+
+```bash
+git clone <repository-url>
+cd youtube-playlist-editor
+```
+
+### 2. 依存関係のインストール
+
+```bash
+npm install
+```
+
+### 3. 環境変数の設定
+
+`.env.local`ファイルを作成し、以下の環境変数を設定してください：
+
+```env
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-secret-key-here
+
+YOUTUBE_CLIENT_ID=your-youtube-client-id
+YOUTUBE_CLIENT_SECRET=your-youtube-client-secret
+```
+
+### 4. YouTube API の設定
+
+1. [Google Cloud Console](https://console.cloud.google.com/)にアクセス
+2. 新しいプロジェクトを作成または既存のプロジェクトを選択
+3. YouTube Data API v3を有効化
+4. OAuth 2.0 認証情報を作成
+   - アプリケーションタイプ: Webアプリケーション
+   - リダイレクトURI: `http://localhost:3000/api/auth/callback/google`
+5. クライアントIDとクライアントシークレットを環境変数に設定
+
+### 5. アプリケーションの起動
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 使い方
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. サインイン
+- YouTubeアカウントでサインインします
+- 必要な権限（プレイリストの読み取りと編集）を許可してください
 
-## Learn More
+### 2. プレイリストの選択
+- 自分のプレイリスト一覧から編集したいプレイリストを選択します
 
-To learn more about Next.js, take a look at the following resources:
+### 3. 動画の並び替え
+- 動画リストで各動画の「目標位置」欄に新しい位置番号を入力
+- 「移動」ボタンをクリックして変更をキューに追加
+- 「決定」ボタンで一括実行
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. 検索機能
+- ヘッダーの検索ボックスで動画タイトルを検索できます
+- 検索結果内でも並び替えが可能です
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 開発
 
-## Deploy on Vercel
+### プロジェクト構造
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/                    # Next.js App Router
+├── components/            # React コンポーネント
+├── lib/                   # ユーティリティとAPI クライアント
+│   ├── auth.ts           # NextAuth.js 設定
+│   ├── youtube-client.ts # YouTube API クライアント
+│   ├── rate-limiter.ts   # APIレート制限管理
+│   └── types.ts          # TypeScript型定義
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 主要コンポーネント
+
+- `PlaylistCard`: プレイリストカード
+- `VideoItem`: 動画アイテムと並び替えコントロール
+- `Pagination`: ページネーションコンポーネント
+- `LoadingSpinner`: ローディングスピナー
+
+### API Routes
+
+- `GET /api/playlists`: プレイリスト一覧取得
+- `GET /api/playlists/[id]/videos`: 動画一覧取得
+- `POST /api/playlists/[id]/reorder`: 動画並び替え実行
+
+## ライセンス
+
+このプロジェクトはMITライセンスの下で公開されています。
+
+## 貢献
+
+プルリクエストや課題報告を歓迎します。大きな変更を行う前に、まずissueを開いて変更内容について話し合うことをお勧めします。
