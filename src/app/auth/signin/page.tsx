@@ -1,10 +1,10 @@
 "use client";
 
 import { signIn, getSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function SignIn() {
+function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +14,10 @@ export default function SignIn() {
     const checkAuth = async () => {
       const session = await getSession();
       if (session) {
-        router.push("/playlists");
+        // Check for stored redirect URL
+        const redirectUrl = sessionStorage.getItem('redirectAfterAuth') || "/playlists";
+        sessionStorage.removeItem('redirectAfterAuth');
+        router.push(redirectUrl);
       }
     };
     checkAuth();
@@ -30,8 +33,10 @@ export default function SignIn() {
     setIsLoading(true);
     setError(null);
     try {
+      // Use stored redirect URL or default to playlists
+      const redirectUrl = sessionStorage.getItem('redirectAfterAuth') || "/playlists";
       const result = await signIn("google", { 
-        callbackUrl: "/playlists",
+        callbackUrl: redirectUrl,
         redirect: false 
       });
       if (result?.error) {
@@ -74,5 +79,17 @@ export default function SignIn() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-lg">Loading...</div>
+      </div>
+    }>
+      <SignInContent />
+    </Suspense>
   );
 }

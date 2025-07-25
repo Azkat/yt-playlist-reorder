@@ -1,7 +1,7 @@
 export class RateLimiter {
   private quotaUsed: number = 0;
   private dailyLimit: number = 10000;
-  private requestQueue: Array<() => Promise<any>> = [];
+  private requestQueue: Array<() => Promise<unknown>> = [];
   private isProcessing: boolean = false;
 
   async executeWithLimit<T>(operation: () => Promise<T>): Promise<T> {
@@ -57,10 +57,11 @@ export class RateLimiter {
     return 1;
   }
 
-  private isRateLimitError(error: any): boolean {
-    return error?.response?.status === 429 || 
-           error?.response?.status === 403 && 
-           error?.response?.data?.error?.errors?.[0]?.reason === "quotaExceeded";
+  private isRateLimitError(error: unknown): boolean {
+    const err = error as { response?: { status?: number; data?: { error?: { errors?: Array<{ reason?: string }> } } } };
+    return err?.response?.status === 429 || 
+           (err?.response?.status === 403 && 
+            err?.response?.data?.error?.errors?.[0]?.reason === "quotaExceeded");
   }
 
   private async waitForQuotaReset(): Promise<void> {

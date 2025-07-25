@@ -16,7 +16,15 @@ export async function GET(request: NextRequest, context: Params) {
     
     if (!session?.accessToken) {
       return NextResponse.json(
-        { error: "認証が必要です" },
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    // Check if token refresh failed
+    if (session.error === "RefreshAccessTokenError") {
+      return NextResponse.json(
+        { error: "Token expired, please sign in again" },
         { status: 401 }
       );
     }
@@ -27,11 +35,14 @@ export async function GET(request: NextRequest, context: Params) {
     const search = searchParams.get("search");
 
     const youtubeClient = new YouTubeAPIClient(session.accessToken);
-    let response = await youtubeClient.getPlaylistVideos(
-      playlistId,
-      pageToken,
-      maxResults
-    );
+    
+    // Get playlist info and videos
+    const [playlistInfo, videosResponse] = await Promise.all([
+      youtubeClient.getPlaylistInfo(playlistId),
+      youtubeClient.getPlaylistVideos(playlistId, pageToken, maxResults)
+    ]);
+    
+    const response = videosResponse;
 
     // 検索フィルタリング
     if (search) {
@@ -41,11 +52,27 @@ export async function GET(request: NextRequest, context: Params) {
       );
     }
 
-    return NextResponse.json(response);
-  } catch (error) {
-    console.error("プレイリスト動画取得エラー:", error);
+    // Add playlist info to response
+    return NextResponse.json({
+      ...response,
+      playlistTitle: playlistInfo?.title || null
+    });
+  } catch (error: unknown) {
+    console.error("Playlist videos fetch error:", error);
+    
+    // Check if it's an authentication error
+    const err = error as { response?: { status?: number; data?: { error?: { errors?: Array<{ reason?: string }> } } } };
+    if (err?.response?.status === 401 || 
+        (err?.response?.status === 403 && 
+         err?.response?.data?.error?.errors?.[0]?.reason === "authError")) {
+      return NextResponse.json(
+        { error: "Authentication failed, please sign in again" },
+        { status: 401 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: "動画の取得に失敗しました" },
+      { error: "Failed to fetch videos" },
       { status: 500 }
     );
   }

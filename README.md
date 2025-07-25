@@ -7,7 +7,7 @@ A modern web application for efficiently managing and editing YouTube playlists 
 - 🎵 **Playlist Management**: View and manage all your YouTube playlists
 - 🎬 **Embedded Video Player**: Fixed left-side video player with seamless playback
 - 📝 **Video Reordering**: Drag-and-drop or numeric input to reorder videos
-- 🔍 **Search & Filter**: Search through videos in your playlists
+- 🔄 **Sequential Pagination**: Navigate through videos with safe pagination
 - 📱 **Responsive Design**: Works on desktop and mobile devices
 - ⚡ **Optimized Performance**: Efficient API usage with rate limiting
 - 🔐 **Secure Authentication**: OAuth 2.0 with YouTube/Google
@@ -89,7 +89,7 @@ A modern web application for efficiently managing and editing YouTube playlists 
 3. **Edit Videos**: 
    - Click video thumbnails to play in the embedded player
    - Use the position input to reorder videos
-   - Search for specific videos using the search bar
+   - Navigate through pages to find specific videos
 4. **Apply Changes**: Click "Apply" to save your reordering changes to YouTube
 
 ## API Limits

@@ -1,6 +1,6 @@
 import { PlaylistVideo } from "@/lib/types";
 import { useState } from "react";
-import { Clock, Move, ExternalLink, Play } from "lucide-react";
+import { Clock, ExternalLink, Play } from "lucide-react";
 
 interface VideoItemProps {
   video: PlaylistVideo;
@@ -62,21 +62,23 @@ export default function VideoItem({
         className="flex-shrink-0 mr-4 relative cursor-pointer" 
         onClick={() => onThumbnailClick(video)}
         onMouseEnter={(e) => {
-          const img = e.currentTarget.querySelector('img');
-          const overlay = e.currentTarget.querySelector('.play-overlay');
+          const img = e.currentTarget.querySelector('img') as HTMLImageElement;
+          const overlay = e.currentTarget.querySelector('.play-overlay') as HTMLDivElement;
           if (img) img.style.opacity = '0.75';
           if (overlay) {
             overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-            overlay.querySelector('svg').style.opacity = '1';
+            const svg = overlay.querySelector('svg') as SVGElement;
+            if (svg) svg.style.opacity = '1';
           }
         }}
         onMouseLeave={(e) => {
-          const img = e.currentTarget.querySelector('img');
-          const overlay = e.currentTarget.querySelector('.play-overlay');
+          const img = e.currentTarget.querySelector('img') as HTMLImageElement;
+          const overlay = e.currentTarget.querySelector('.play-overlay') as HTMLDivElement;
           if (img) img.style.opacity = '1';
           if (overlay) {
             overlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-            overlay.querySelector('svg').style.opacity = '0';
+            const svg = overlay.querySelector('svg') as SVGElement;
+            if (svg) svg.style.opacity = '0';
           }
         }}
       >
@@ -139,7 +141,7 @@ export default function VideoItem({
             min={1}
             max={totalVideos}
             disabled={isProcessing}
-            className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+            className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button
             onClick={handlePositionSubmit}
@@ -150,7 +152,6 @@ export default function VideoItem({
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
-            <Move className="w-3 h-3" />
             <span>{isPending ? "Pending" : "Move"}</span>
           </button>
         </div>

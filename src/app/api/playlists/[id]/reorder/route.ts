@@ -25,7 +25,15 @@ export async function POST(request: NextRequest, context: Params) {
     
     if (!session?.accessToken) {
       return NextResponse.json(
-        { error: "認証が必要です" },
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    // Check if token refresh failed
+    if (session.error === "RefreshAccessTokenError") {
+      return NextResponse.json(
+        { error: "Token expired, please sign in again" },
         { status: 401 }
       );
     }
@@ -45,20 +53,31 @@ export async function POST(request: NextRequest, context: Params) {
 
     return NextResponse.json({ 
       success: true,
-      message: "動画の並び替えが完了しました"
+      message: "Video reordering completed successfully"
     });
-  } catch (error) {
-    console.error("動画並び替えエラー:", error);
+  } catch (error: unknown) {
+    console.error("Reorder error:", error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "リクエストデータが無効です", details: error.errors },
+        { error: "Invalid request data", details: error.issues },
         { status: 400 }
       );
     }
 
+    // Check if it's an authentication error
+    const err = error as { response?: { status?: number; data?: { error?: { errors?: Array<{ reason?: string }> } } } };
+    if (err?.response?.status === 401 || 
+        (err?.response?.status === 403 && 
+         err?.response?.data?.error?.errors?.[0]?.reason === "authError")) {
+      return NextResponse.json(
+        { error: "Authentication failed, please sign in again" },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json(
-      { error: "動画の並び替えに失敗しました" },
+      { error: "Failed to reorder videos" },
       { status: 500 }
     );
   }

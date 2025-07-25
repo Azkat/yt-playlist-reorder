@@ -25,6 +25,8 @@ export interface Playlist {
   };
   itemCount: number;
   privacy: 'public' | 'unlisted' | 'private';
+  publishedAt?: string;
+  firstVideoThumbnail?: string;
 }
 
 export interface ChangeOperation {
@@ -38,6 +40,6 @@ export interface ChangeOperation {
 
 export interface PaginatedResponse<T> {
   items: T[];
-  nextPageToken?: string;
+  nextPageToken?: string | null;
   totalResults: number;
 }

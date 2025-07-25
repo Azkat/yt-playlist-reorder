@@ -24,7 +24,7 @@ function generateYouTubeThumbnails(videoId: string) {
 
 export class YouTubeAPIClient {
   private youtube: youtube_v3.Youtube;
-  private oauth2Client: any;
+  private oauth2Client: import('google-auth-library').OAuth2Client;
 
   constructor(accessToken: string) {
     this.oauth2Client = new google.auth.OAuth2();
@@ -34,6 +34,63 @@ export class YouTubeAPIClient {
       version: "v3",
       auth: this.oauth2Client,
     });
+  }
+
+  async getPlaylistInfo(playlistId: string): Promise<Playlist | null> {
+    try {
+      const response = await this.youtube.playlists.list({
+        part: ["snippet", "contentDetails"],
+        id: [playlistId],
+      });
+
+      if (!response.data.items || response.data.items.length === 0) {
+        return null;
+      }
+
+      const item = response.data.items[0];
+      const firstVideoThumbnail = await this.getFirstVideoThumbnail(playlistId);
+      
+      return {
+        id: item.id!,
+        title: item.snippet?.title || "",
+        description: item.snippet?.description || "",
+        thumbnails: {
+          default: item.snippet?.thumbnails?.default?.url || "",
+          medium: item.snippet?.thumbnails?.medium?.url || "",
+          high: item.snippet?.thumbnails?.high?.url || "",
+        },
+        itemCount: item.contentDetails?.itemCount || 0,
+        privacy: item.status?.privacyStatus as 'public' | 'unlisted' | 'private' || 'private',
+        publishedAt: item.snippet?.publishedAt || undefined,
+        firstVideoThumbnail: firstVideoThumbnail || undefined,
+      };
+    } catch (error) {
+      console.error("Playlist info fetch error:", error);
+      return null;
+    }
+  }
+
+  async getFirstVideoThumbnail(playlistId: string): Promise<string | null> {
+    try {
+      const response = await this.youtube.playlistItems.list({
+        part: ["snippet"],
+        playlistId,
+        maxResults: 1, // Get only the first item
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        const videoId = response.data.items[0].snippet?.resourceId?.videoId;
+        if (videoId) {
+          // Use direct YouTube thumbnail URL for better reliability
+          return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.error(`Failed to get first video thumbnail for playlist ${playlistId}:`, error);
+      return null;
+    }
   }
 
   async getPlaylists(): Promise<Playlist[]> {
@@ -46,7 +103,7 @@ export class YouTubeAPIClient {
 
       if (!response.data.items) return [];
 
-      return response.data.items.map((item): Playlist => ({
+      const playlists = response.data.items.map((item): Playlist => ({
         id: item.id!,
         title: item.snippet?.title || "",
         description: item.snippet?.description || "",
@@ -59,7 +116,41 @@ export class YouTubeAPIClient {
         },
         itemCount: item.contentDetails?.itemCount || 0,
         privacy: item.status?.privacyStatus as 'public' | 'unlisted' | 'private' || 'private',
+        publishedAt: item.snippet?.publishedAt || undefined,
       }));
+
+      // Get first video thumbnail for each playlist
+      // Use Promise.allSettled to handle failures gracefully
+      const thumbnailPromises = playlists.map(async (playlist) => {
+        try {
+          const firstVideoThumbnail = await this.getFirstVideoThumbnail(playlist.id);
+          return { id: playlist.id, firstVideoThumbnail };
+        } catch (error) {
+          console.warn(`Failed to get thumbnail for playlist ${playlist.id}:`, error);
+          return { id: playlist.id, firstVideoThumbnail: null };
+        }
+      });
+
+      const thumbnailResults = await Promise.allSettled(thumbnailPromises);
+      const thumbnailMap = new Map<string, string | null>();
+      
+      thumbnailResults.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+          thumbnailMap.set(result.value.id, result.value.firstVideoThumbnail);
+        } else {
+          thumbnailMap.set(playlists[index].id, null);
+        }
+      });
+
+      const playlistsWithThumbnails = playlists.map(playlist => {
+        const thumbnail = thumbnailMap.get(playlist.id);
+        return {
+          ...playlist,
+          firstVideoThumbnail: thumbnail || undefined,
+        };
+      });
+
+      return playlistsWithThumbnails;
     } catch (error) {
       console.error("Playlist fetch error:", error);
       throw new Error("Failed to fetch playlists");
@@ -89,13 +180,18 @@ export class YouTubeAPIClient {
         .filter(Boolean) as string[];
 
       // 動画詳細情報を取得（再生時間含む）
-      let videosDetails: any[] = [];
+      let videosDetails: Array<{ id?: string; contentDetails?: { duration?: string } }> = [];
       if (videoIds.length > 0) {
         const videosResponse = await this.youtube.videos.list({
           part: ["contentDetails"],
           id: videoIds,
         });
-        videosDetails = videosResponse.data.items || [];
+        videosDetails = (videosResponse.data.items || []).map(item => ({
+          id: item.id || undefined,
+          contentDetails: item.contentDetails ? {
+            duration: item.contentDetails.duration || undefined
+          } : undefined
+        }));
       }
 
       const videos: PlaylistVideo[] = response.data.items.map((item, index) => {
