@@ -1,120 +1,177 @@
-# YouTube プレイリスト エディター
+# YouTube Playlist Editor
 
-大規模なYouTubeプレイリスト（1000本以上の動画）を効率的に管理・並び替えできるWebアプリケーションです。YouTube APIを使用して、ページネーション付きで動画を表示し、数値指定による素早い並び替えが可能です。
+A modern web application for efficiently managing and editing YouTube playlists with an embedded video player interface.
 
-## 機能
+## Features
 
-- ✅ YouTube OAuth 2.0 認証
-- ✅ プレイリスト一覧表示と選択
-- ✅ 動画リストの表示（ページネーション対応）
-- ✅ 動画の位置指定による並び替え
-- ✅ 検索・フィルタリング機能
-- ✅ 一括更新機能（変更キュー）
-- ✅ エラーハンドリングと進行状況表示
+- 🎵 **Playlist Management**: View and manage all your YouTube playlists
+- 🎬 **Embedded Video Player**: Fixed left-side video player with seamless playback
+- 📝 **Video Reordering**: Drag-and-drop or numeric input to reorder videos
+- 🔍 **Search & Filter**: Search through videos in your playlists
+- 📱 **Responsive Design**: Works on desktop and mobile devices
+- ⚡ **Optimized Performance**: Efficient API usage with rate limiting
+- 🔐 **Secure Authentication**: OAuth 2.0 with YouTube/Google
 
-## 技術スタック
+## Tech Stack
 
-- **フロントエンド**: Next.js 15, React 19, TypeScript
-- **認証**: NextAuth.js
-- **スタイリング**: Tailwind CSS
+- **Frontend**: Next.js 15, React, TypeScript, Tailwind CSS
+- **Authentication**: NextAuth.js with Google OAuth
 - **API**: YouTube Data API v3
-- **アイコン**: Lucide React
+- **Icons**: Lucide React
+- **Deployment**: Vercel-ready
 
-## セットアップ
+## Getting Started
 
-### 1. リポジトリのクローン
+### Prerequisites
 
-```bash
-git clone <repository-url>
-cd youtube-playlist-editor
-```
+- Node.js 18+ 
+- npm or yarn
+- Google Cloud Console account
+- YouTube account
 
-### 2. 依存関係のインストール
+### Installation
 
-```bash
-npm install
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Azkat/ytp-editor.git
+   cd ytp-editor
+   ```
 
-### 3. 環境変数の設定
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-`.env.local`ファイルを作成し、以下の環境変数を設定してください：
+3. **Set up Google OAuth**
 
-```env
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-key-here
+   a. Go to [Google Cloud Console](https://console.cloud.google.com/)
+   
+   b. Create a new project or select an existing one
+   
+   c. Enable the YouTube Data API v3:
+      - Go to "APIs & Services" > "Library"
+      - Search for "YouTube Data API v3"
+      - Click "Enable"
+   
+   d. Create OAuth 2.0 credentials:
+      - Go to "APIs & Services" > "Credentials"
+      - Click "Create Credentials" > "OAuth 2.0 Client IDs"
+      - Set Application type to "Web application"
+      - Add authorized origins: `http://localhost:3000`
+      - Add authorized redirect URIs: `http://localhost:3000/api/auth/callback/google`
 
-YOUTUBE_CLIENT_ID=your-youtube-client-id
-YOUTUBE_CLIENT_SECRET=your-youtube-client-secret
-```
+4. **Environment Variables**
+   
+   Create a `.env.local` file in the root directory:
+   ```env
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=your-nextauth-secret-here
+   YOUTUBE_CLIENT_ID=your-google-client-id
+   YOUTUBE_CLIENT_SECRET=your-google-client-secret
+   ```
 
-### 4. YouTube API の設定
+   Generate a NextAuth secret:
+   ```bash
+   openssl rand -base64 32
+   ```
 
-1. [Google Cloud Console](https://console.cloud.google.com/)にアクセス
-2. 新しいプロジェクトを作成または既存のプロジェクトを選択
-3. YouTube Data API v3を有効化
-4. OAuth 2.0 認証情報を作成
-   - アプリケーションタイプ: Webアプリケーション
-   - リダイレクトURI: `http://localhost:3000/api/auth/callback/google`
-5. クライアントIDとクライアントシークレットを環境変数に設定
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
 
-### 5. アプリケーションの起動
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-```bash
-npm run dev
-```
+## Usage
 
-ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください。
+1. **Sign In**: Click "Sign in with YouTube" to authenticate with your Google account
+2. **Select Playlist**: Choose a playlist from your YouTube account
+3. **Edit Videos**: 
+   - Click video thumbnails to play in the embedded player
+   - Use the position input to reorder videos
+   - Search for specific videos using the search bar
+4. **Apply Changes**: Click "Apply" to save your reordering changes to YouTube
 
-## 使い方
+## API Limits
 
-### 1. サインイン
-- YouTubeアカウントでサインインします
-- 必要な権限（プレイリストの読み取りと編集）を許可してください
+- YouTube Data API has daily quotas (10,000 units/day for free tier)
+- The app is optimized to minimize API calls:
+  - Direct thumbnail URLs (no API quota usage)
+  - Efficient pagination with token management
+  - Rate limiting for batch operations
 
-### 2. プレイリストの選択
-- 自分のプレイリスト一覧から編集したいプレイリストを選択します
-
-### 3. 動画の並び替え
-- 動画リストで各動画の「目標位置」欄に新しい位置番号を入力
-- 「移動」ボタンをクリックして変更をキューに追加
-- 「決定」ボタンで一括実行
-
-### 4. 検索機能
-- ヘッダーの検索ボックスで動画タイトルを検索できます
-- 検索結果内でも並び替えが可能です
-
-## 開発
-
-### プロジェクト構造
+## Project Structure
 
 ```
 src/
-├── app/                    # Next.js App Router
-├── components/            # React コンポーネント
-├── lib/                   # ユーティリティとAPI クライアント
-│   ├── auth.ts           # NextAuth.js 設定
-│   ├── youtube-client.ts # YouTube API クライアント
-│   ├── rate-limiter.ts   # APIレート制限管理
-│   └── types.ts          # TypeScript型定義
+├── app/                 # Next.js app directory
+│   ├── api/            # API routes
+│   ├── auth/           # Authentication pages
+│   └── playlists/      # Playlist management pages
+├── components/         # Reusable React components
+│   ├── ui/            # UI components
+│   └── ...
+├── lib/               # Utility functions and clients
+│   ├── auth.ts        # NextAuth configuration
+│   ├── youtube-client.ts # YouTube API client
+│   └── types.ts       # TypeScript type definitions
 ```
 
-### 主要コンポーネント
+## Contributing
 
-- `PlaylistCard`: プレイリストカード
-- `VideoItem`: 動画アイテムと並び替えコントロール
-- `Pagination`: ページネーションコンポーネント
-- `LoadingSpinner`: ローディングスピナー
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-### API Routes
+## License
 
-- `GET /api/playlists`: プレイリスト一覧取得
-- `GET /api/playlists/[id]/videos`: 動画一覧取得
-- `POST /api/playlists/[id]/reorder`: 動画並び替え実行
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## ライセンス
+## Deployment
 
-このプロジェクトはMITライセンスの下で公開されています。
+### Vercel (Recommended)
 
-## 貢献
+1. Push your code to GitHub
+2. Connect your repository to [Vercel](https://vercel.com)
+3. Add environment variables in Vercel dashboard
+4. Update Google OAuth settings with your production domain
 
-プルリクエストや課題報告を歓迎します。大きな変更を行う前に、まずissueを開いて変更内容について話し合うことをお勧めします。
+### Manual Deployment
+
+1. Build the project:
+   ```bash
+   npm run build
+   ```
+
+2. Start the production server:
+   ```bash
+   npm start
+   ```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **OAuth Error**: Ensure your redirect URIs match exactly in Google Console
+2. **API Quota Exceeded**: Check your YouTube Data API usage in Google Console
+3. **Authentication Issues**: Verify your client ID and secret are correct
+
+### Support
+
+If you encounter any issues, please:
+1. Check the [troubleshooting section](#troubleshooting)
+2. Search existing [issues](https://github.com/Azkat/ytp-editor/issues)
+3. Create a new issue with detailed information
+
+## Acknowledgments
+
+- YouTube Data API v3 for playlist management
+- Next.js team for the excellent framework
+- Tailwind CSS for the utility-first CSS framework
+- All contributors who help improve this project
+
+---
+
+**Note**: This application requires YouTube Data API access and is subject to Google's API terms of service and quota limitations.

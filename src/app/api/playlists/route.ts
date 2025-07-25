@@ -9,7 +9,7 @@ export async function GET() {
     
     if (!session?.accessToken) {
       return NextResponse.json(
-        { error: "認証が必要です" },
+        { error: "Authentication required" },
         { status: 401 }
       );
     }
@@ -19,9 +19,9 @@ export async function GET() {
 
     return NextResponse.json({ playlists });
   } catch (error) {
-    console.error("プレイリスト取得エラー:", error);
+    console.error("Playlist fetch error:", error);
     return NextResponse.json(
-      { error: "プレイリストの取得に失敗しました" },
+      { error: "Failed to fetch playlists" },
       { status: 500 }
     );
   }

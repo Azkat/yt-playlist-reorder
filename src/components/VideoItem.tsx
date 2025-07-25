@@ -114,17 +114,17 @@ export default function VideoItem({
           <button
             onClick={handleTitleClick}
             className="ml-2 p-1 text-blue-600 hover:text-blue-800 transition-colors group"
-            title="YouTubeで開く"
+            title="Open in YouTube"
           >
             <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100" />
           </button>
         </h3>
         <p className="text-xs text-gray-500 line-clamp-2 mb-2">
-          {video.description || "説明なし"}
+          {video.description || "No description"}
         </p>
         <div className="flex items-center text-xs text-gray-400">
           <Clock className="w-3 h-3 mr-1" />
-          <span>{video.duration || "時間不明"}</span>
+          <span>{video.duration || "Unknown duration"}</span>
         </div>
       </div>
 
@@ -151,7 +151,7 @@ export default function VideoItem({
             }`}
           >
             <Move className="w-3 h-3" />
-            <span>{isPending ? "保留中" : "移動"}</span>
+            <span>{isPending ? "Pending" : "Move"}</span>
           </button>
         </div>
       </div>

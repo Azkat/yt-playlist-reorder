@@ -32,10 +32,10 @@ export default function PaginationControls({
           <div className="text-sm text-gray-700">
             {totalItems > 0 ? (
               <span>
-                {startItem}-{endItem}件 / 全{totalItems}件 (1ページ{pageSize}件表示)
+                {startItem}-{endItem} of {totalItems} items ({pageSize} per page)
               </span>
             ) : (
-              <span>0件</span>
+              <span>0 items</span>
             )}
           </div>
         </div>

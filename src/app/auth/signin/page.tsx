@@ -19,10 +19,10 @@ export default function SignIn() {
     };
     checkAuth();
 
-    // URLからエラーパラメータを取得
+    // Get error parameter from URL
     const errorParam = searchParams.get("error");
     if (errorParam) {
-      setError(`認証エラー: ${errorParam}`);
+      setError(`Authentication error: ${errorParam}`);
     }
   }, [router, searchParams]);
 
@@ -35,11 +35,11 @@ export default function SignIn() {
         redirect: false 
       });
       if (result?.error) {
-        setError(`サインインエラー: ${result.error}`);
+        setError(`Sign-in error: ${result.error}`);
       }
     } catch (error) {
-      console.error("サインインエラー:", error);
-      setError("予期しないエラーが発生しました");
+      console.error("Sign-in error:", error);
+      setError("An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -50,10 +50,10 @@ export default function SignIn() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            YouTube プレイリスト エディター
+            YouTube Playlist Editor
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            YouTubeアカウントでサインインして、プレイリストを管理しましょう
+            Sign in with your YouTube account to manage playlists
           </p>
         </div>
         
@@ -69,7 +69,7 @@ export default function SignIn() {
             disabled={isLoading}
             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
           >
-            {isLoading ? "サインイン中..." : "YouTubeでサインイン"}
+            {isLoading ? "Signing in..." : "Sign in with YouTube"}
           </button>
         </div>
       </div>

@@ -36,7 +36,7 @@ export default function PlaylistsPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "プレイリストの取得に失敗しました");
+        throw new Error(data.error || "Failed to fetch playlists");
       }
 
       setPlaylists(data.playlists);
@@ -73,7 +73,7 @@ export default function PlaylistsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-bold text-gray-900">
-              プレイリスト管理
+              Playlist Manager
             </h1>
             <div className="flex items-center space-x-4">
               <button
@@ -126,9 +126,9 @@ export default function PlaylistsPage() {
 
         {!loading && !error && playlists.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">プレイリストが見つかりません</p>
+            <p className="text-gray-500 text-lg">No playlists found</p>
             <p className="text-gray-400 text-sm mt-2">
-              YouTubeでプレイリストを作成してから再度お試しください
+              Create playlists on YouTube and try again
             </p>
           </div>
         )}

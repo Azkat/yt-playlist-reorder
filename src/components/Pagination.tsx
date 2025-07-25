@@ -39,21 +39,21 @@ export default function Pagination({
           disabled={currentPage === 1 || disabled}
           className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          前へ
+          Previous
         </button>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={!hasNextPageToken || disabled}
           className="relative ml-3 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          次へ
+          Next
         </button>
       </div>
 
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-gray-700">
-            ページ <span className="font-medium">{currentPage}</span> / {" "}
+            Page <span className="font-medium">{currentPage}</span> of {" "}
             <span className="font-medium">{totalPages}</span>
           </p>
         </div>

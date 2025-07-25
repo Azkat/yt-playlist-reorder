@@ -4,7 +4,7 @@ import { Playlist, PlaylistVideo, PaginatedResponse } from "./types";
 // YouTube サムネイル直接URL生成（APIクォータ消費なし）
 function generateYouTubeThumbnails(videoId: string) {
   if (!videoId) {
-    console.warn("VideoID が空です");
+    console.warn("VideoID is empty");
     return {
       default: "",
       medium: "",
@@ -61,8 +61,8 @@ export class YouTubeAPIClient {
         privacy: item.status?.privacyStatus as 'public' | 'unlisted' | 'private' || 'private',
       }));
     } catch (error) {
-      console.error("プレイリスト取得エラー:", error);
-      throw new Error("プレイリストの取得に失敗しました");
+      console.error("Playlist fetch error:", error);
+      throw new Error("Failed to fetch playlists");
     }
   }
 
@@ -123,8 +123,8 @@ export class YouTubeAPIClient {
         totalResults: response.data.pageInfo?.totalResults || 0,
       };
     } catch (error) {
-      console.error("プレイリスト動画取得エラー:", error);
-      throw new Error("プレイリストの動画取得に失敗しました");
+      console.error("Playlist videos fetch error:", error);
+      throw new Error("Failed to fetch playlist videos");
     }
   }
 
@@ -150,8 +150,8 @@ export class YouTubeAPIClient {
         },
       });
     } catch (error) {
-      console.error("プレイリストアイテム更新エラー:", error);
-      throw new Error("動画の位置更新に失敗しました");
+      console.error("Playlist item update error:", error);
+      throw new Error("Failed to update video position");
     }
   }
 
@@ -177,7 +177,7 @@ export class YouTubeAPIClient {
 
   // ISO 8601 duration (PT4M13S) を人間が読みやすい形式 (4:13) に変換
   private formatDuration(duration: string): string {
-    if (!duration) return "時間不明";
+    if (!duration) return "Unknown duration";
     
     try {
       // PT4M13S形式をパース
@@ -195,7 +195,7 @@ export class YouTubeAPIClient {
       }
     } catch (error) {
       console.error("Duration format error:", error);
-      return "時間不明";
+      return "Unknown duration";
     }
   }
 }

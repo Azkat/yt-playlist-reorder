@@ -244,7 +244,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <h1 className="text-2xl font-bold text-gray-900">
-                プレイリスト エディター
+                Playlist Editor
               </h1>
             </div>
 
@@ -252,7 +252,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
             {pendingChanges.size > 0 && (
               <div className="flex items-center space-x-3">
                 <span className="text-sm text-gray-600">
-                  {pendingChanges.size}件の変更が保留中
+                  {pendingChanges.size} changes pending
                 </span>
                 <button
                   onClick={cancelChanges}
@@ -260,7 +260,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
                   className="flex items-center space-x-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
                 >
                   <X className="w-4 h-4" />
-                  <span>キャンセル</span>
+                  <span>Cancel</span>
                 </button>
                 <button
                   onClick={executeChanges}
@@ -268,7 +268,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
                   className="flex items-center space-x-1 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{isExecuting ? "実行中..." : "決定"}</span>
+                  <span>{isExecuting ? "Executing..." : "Apply"}</span>
                 </button>
               </div>
             )}
@@ -284,7 +284,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                placeholder="動画を検索..."
+                placeholder="Search videos..."
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
               {searchQuery && (
@@ -298,7 +298,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
             </div>
             {isSearching && (
               <p className="mt-2 text-sm text-gray-600">
-                検索結果: {videos.length}件
+                Search results: {videos.length} videos
               </p>
             )}
           </div>
@@ -344,7 +344,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
                       className="flex-1 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                     />
                     <button
-                      onClick={() => handlePlayerPositionSubmit(selectedVideo)}
+                      onClick={() => selectedVideo && handlePlayerPositionSubmit(selectedVideo)}
                       disabled={!isPlayerPositionValid() || isExecuting}
                       className={`px-2 py-1 text-xs rounded transition-colors flex items-center space-x-1 ${
                         isPlayerPositionValid() && !isExecuting
@@ -352,7 +352,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
                           : "bg-gray-300 text-gray-500 cursor-not-allowed"
                       }`}
                     >
-                      <span>{pendingChanges.has(selectedVideo.id) ? "保留中" : "移動"}</span>
+                      <span>{selectedVideo && pendingChanges.has(selectedVideo.id) ? "Pending" : "Move"}</span>
                     </button>
                   </div>
                 </div>
@@ -370,7 +370,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
                 onClick={fetchVideos}
                 className="mt-2 bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-sm"
               >
-                再試行
+                Retry
               </button>
             </div>
           )}
@@ -378,7 +378,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
           {videos.length === 0 && !listLoading ? (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">
-                {isSearching ? "検索結果が見つかりません" : "動画が見つかりません"}
+                {isSearching ? "No search results found" : "No videos found"}
               </p>
             </div>
           ) : (
@@ -399,7 +399,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
               {listLoading && (
                 <div className="flex items-center justify-center py-8 bg-blue-50 rounded-lg border border-blue-200 mb-6">
                   <LoadingSpinner size="lg" />
-                  <span className="ml-3 text-blue-700 font-medium">ページを読み込んでいます...</span>
+                  <span className="ml-3 text-blue-700 font-medium">Loading page...</span>
                 </div>
               )}
 
