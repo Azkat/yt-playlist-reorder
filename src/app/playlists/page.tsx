@@ -108,7 +108,7 @@ export default function PlaylistsPage() {
                 <div className="mt-4">
                   <button
                     onClick={fetchPlaylists}
-                    className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    className="bg-youtube-red hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     Retry
                   </button>

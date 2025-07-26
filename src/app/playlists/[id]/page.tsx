@@ -469,7 +469,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
               <div className="text-sm text-red-700">{error}</div>
               <button
                 onClick={fetchVideos}
-                className="mt-2 bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-sm"
+                className="mt-2 bg-youtube-red hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
               >
                 Retry
               </button>
