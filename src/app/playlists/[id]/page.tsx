@@ -11,6 +11,8 @@ import PendingChangesQueue from "@/components/PendingChangesQueue";
 import SuccessMessage from "@/components/SuccessMessage";
 import { authFetchJson } from "@/lib/auth-fetch";
 import { ArrowLeft } from "lucide-react";
+import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 
 interface PlaylistEditorProps {
   params: Promise<{ id: string }>;
@@ -175,6 +177,26 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
     const newChanges = new Map(pendingChanges);
     newChanges.set(videoId, newPosition);
     setPendingChanges(newChanges);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (active.id !== over?.id && over) {
+      const oldIndex = videos.findIndex(v => v.id === active.id);
+      const newIndex = videos.findIndex(v => v.id === over.id);
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        // Update videos order for immediate UI feedback
+        const newVideos = arrayMove(videos, oldIndex, newIndex);
+        setVideos(newVideos);
+        
+        // Add to pending changes (0-based index for API)
+        const newChanges = new Map(pendingChanges);
+        newChanges.set(active.id as string, newIndex);
+        setPendingChanges(newChanges);
+      }
+    }
   };
 
   const clearPageTokens = () => {
@@ -505,27 +527,38 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
               )}
 
               {/* Video list */}
-              <div className="space-y-4 my-6 overflow-hidden">
-                {videos.map((video, index) => {
-                  // Use the actual position from YouTube API instead of calculating
-                  const actualPosition = video.position;
-                  const isPending = pendingChanges.has(video.id);
-                  const isProcessing = processingVideos.has(video.id) || isRefreshing;
+              <DndContext 
+                collisionDetection={closestCenter} 
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext 
+                  items={videos.map(v => v.id)} 
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-4 my-6 overflow-hidden">
+                    {videos.map((video, index) => {
+                      // Use the actual position from YouTube API instead of calculating
+                      const actualPosition = video.position;
+                      const isPending = pendingChanges.has(video.id);
+                      const isProcessing = processingVideos.has(video.id) || isRefreshing;
 
-                  return (
-                    <VideoItem
-                      key={video.id}
-                      video={video}
-                      currentPosition={actualPosition}
-                      totalVideos={totalVideos}
-                      onPositionChange={handlePositionChange}
-                      isPending={isPending}
-                      isProcessing={isProcessing}
-                      onThumbnailClick={handleThumbnailClick}
-                    />
-                  );
-                })}
-              </div>
+                      return (
+                        <VideoItem
+                          key={video.id}
+                          video={video}
+                          currentPosition={actualPosition}
+                          totalVideos={totalVideos}
+                          onPositionChange={handlePositionChange}
+                          isPending={isPending}
+                          isProcessing={isProcessing}
+                          onThumbnailClick={handleThumbnailClick}
+                          isDragDisabled={isExecuting || listLoading || isRefreshing}
+                        />
+                      );
+                    })}
+                  </div>
+                </SortableContext>
+              </DndContext>
 
               {/* Bottom Pagination Controls */}
               <PaginationControls

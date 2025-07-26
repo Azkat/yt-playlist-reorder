@@ -1,6 +1,8 @@
 import { PlaylistVideo } from "@/lib/types";
 import { useState } from "react";
-import { Clock, ExternalLink, Play } from "lucide-react";
+import { Clock, ExternalLink, Play, GripVertical } from "lucide-react";
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface VideoItemProps {
   video: PlaylistVideo;
@@ -10,6 +12,7 @@ interface VideoItemProps {
   isPending: boolean;
   isProcessing: boolean;
   onThumbnailClick: (video: PlaylistVideo) => void;
+  isDragDisabled?: boolean;
 }
 
 export default function VideoItem({
@@ -20,8 +23,26 @@ export default function VideoItem({
   isPending,
   isProcessing,
   onThumbnailClick,
+  isDragDisabled = false,
 }: VideoItemProps) {
   const [targetPosition, setTargetPosition] = useState("");
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: video.id,
+    disabled: isDragDisabled || isProcessing,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   const handlePositionSubmit = () => {
     const position = parseInt(targetPosition, 10);
@@ -48,10 +69,23 @@ export default function VideoItem({
 
   return (
     <div
+      ref={setNodeRef}
+      style={style}
       className={`flex items-center p-4 bg-white border rounded-lg shadow-sm transition-all ${
-        isPending ? "bg-blue-50 border-blue-200" : "border-gray-200"
-      } ${isProcessing ? "opacity-50" : ""}`}
+        isPending ? "bg-blue-100 border-blue-300 shadow-md" : "border-gray-200"
+      } ${isProcessing ? "opacity-50" : ""} ${
+        isDragging ? "opacity-75 rotate-1 scale-105 z-50" : ""
+      }`}
     >
+      {/* Drag handle */}
+      <div 
+        className="flex-shrink-0 w-8 flex items-center justify-center drag-handle"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors" />
+      </div>
+
       {/* Position number */}
       <div className="flex-shrink-0 w-16 text-center">
         <div className="text-sm font-medium text-gray-900">#{currentPosition}</div>

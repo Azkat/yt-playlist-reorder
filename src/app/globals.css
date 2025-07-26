@@ -24,3 +24,23 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Drag handle styles */
+.drag-handle {
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-handle:hover {
+  color: #374151;
+}
+
+/* Dragging state improvements */
+.dragging {
+  z-index: 1000;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
