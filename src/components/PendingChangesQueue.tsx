@@ -32,21 +32,21 @@ export default function PendingChangesQueue({
   }).filter(item => item.video); // Filter out videos not found
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-3 bg-blue-50 border-b border-blue-200">
-        <h4 className="text-sm font-semibold text-blue-900">
+      <div className="flex-shrink-0 p-4 bg-blue-600 text-white">
+        <h4 className="text-sm font-semibold">
           Pending Changes ({pendingChanges.size})
         </h4>
       </div>
 
       {/* Scrollable queue list */}
-      <div className="max-h-60 overflow-y-auto">
-        <div className="space-y-2 p-3">
+      <div className="flex-1 overflow-y-auto min-h-0 bg-white">
+        <div className="space-y-2 p-4">
           {pendingVideos.map(({ video, videoId, currentPosition, newPosition }) => (
             <div
               key={videoId}
-              className="flex items-center space-x-3 p-2 bg-blue-50 rounded-lg border border-blue-200"
+              className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200"
             >
               {/* Thumbnail */}
               <img
@@ -79,7 +79,7 @@ export default function PendingChangesQueue({
       </div>
 
       {/* Fixed buttons at bottom */}
-      <div className="sticky bottom-0 bg-white border-t border-gray-200 p-3">
+      <div className="flex-shrink-0 bg-white border-t border-gray-200 p-4">
         <div className="flex space-x-2">
           <button
             onClick={onExecuteChanges}
