@@ -6,7 +6,9 @@ export function useDragAndDrop(
   videos: PlaylistVideo[],
   setVideos: (videos: PlaylistVideo[]) => void,
   pendingChanges: Map<string, number>,
-  setPendingChanges: (changes: Map<string, number>) => void
+  setPendingChanges: (changes: Map<string, number>) => void,
+  currentPage: number,
+  videosPerPage: number
 ) {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -20,9 +22,15 @@ export function useDragAndDrop(
         const newVideos = arrayMove(videos, oldIndex, newIndex);
         setVideos(newVideos);
         
-        // Add to pending changes (0-based index for API)
+        // Calculate the absolute position in the playlist
+        // Page offset: (currentPage - 1) * videosPerPage
+        // Absolute position: pageOffset + newIndex (0-based for API)
+        const pageOffset = (currentPage - 1) * videosPerPage;
+        const absolutePosition = pageOffset + newIndex;
+        
+        // Add to pending changes with absolute position
         const newChanges = new Map(pendingChanges);
-        newChanges.set(active.id as string, newIndex);
+        newChanges.set(active.id as string, absolutePosition);
         setPendingChanges(newChanges);
       }
     }

@@ -59,7 +59,7 @@ export function usePagination(playlistId: string) {
     setError: (error: string | null) => void,
     isSearching: boolean,
     searchQuery: string,
-    setSelectedVideo?: (video: PlaylistVideo | null) => void
+    restoreSelectedVideo?: (videos: PlaylistVideo[]) => boolean
   ) => {
     try {
       // Use initialLoading only for the first load, listLoading for subsequent loads
@@ -94,12 +94,9 @@ export function usePagination(playlistId: string) {
         setPlaylistTitle(data.playlistTitle);
       }
 
-      // Auto-select first video on initial load (page 1) if no video is selected and not searching
-      if (currentPage === 1 && !isSearching && data.items && data.items.length > 0 && setSelectedVideo) {
-        const firstVideo = data.items.find(v => v.position === 1);
-        if (firstVideo) {
-          setSelectedVideo({ ...firstVideo, autoplay: false }); // No autoplay, just display
-        }
+      // Handle video selection logic - only restore from storage, no auto-selection
+      if (currentPage === 1 && !isSearching && data.items && data.items.length > 0 && restoreSelectedVideo) {
+        restoreSelectedVideo(data.items);
       }
 
       // Store the next page token for the next page

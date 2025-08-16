@@ -13,21 +13,28 @@ function SignInContent() {
   useEffect(() => {
     const checkAuth = async () => {
       const session = await getSession();
-      if (session) {
-        // Check for stored redirect URL
+      if (session && session.accessToken && !session.error) {
+        // Only redirect if we have a valid session with access token
         const redirectUrl = sessionStorage.getItem('redirectAfterAuth') || "/playlists";
         sessionStorage.removeItem('redirectAfterAuth');
         router.push(redirectUrl);
+      } else if (session?.error === "RefreshAccessTokenError") {
+        // Clear invalid session and show error
+        setError("Your session has expired. Please sign in again.");
       }
     };
-    checkAuth();
+    
+    // Only check auth if we're not already loading/signing in
+    if (!isLoading) {
+      checkAuth();
+    }
 
     // Get error parameter from URL
     const errorParam = searchParams.get("error");
     if (errorParam) {
       setError(`Authentication error: ${errorParam}`);
     }
-  }, [router, searchParams]);
+  }, [router, searchParams, isLoading]);
 
   const handleSignIn = async () => {
     setIsLoading(true);

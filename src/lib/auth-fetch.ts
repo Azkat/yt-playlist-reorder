@@ -11,11 +11,15 @@ export async function authFetch(url: string, options?: RequestInit): Promise<Res
     // Show user-friendly error message
     console.error("Authentication error:", data.error);
     
-    // Redirect to sign-in page
-    if (typeof window !== 'undefined') {
+    // Only redirect if we're not already on the signin page to prevent loops
+    if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/signin')) {
       // Store the current URL to redirect back after sign-in
       sessionStorage.setItem('redirectAfterAuth', window.location.pathname + window.location.search);
-      window.location.href = '/auth/signin';
+      
+      // Use router push instead of direct window.location to prevent hard refreshes
+      const { signOut } = await import('next-auth/react');
+      await signOut({ callbackUrl: '/auth/signin', redirect: true });
+      return response; // This won't be reached but satisfies TypeScript
     }
     
     throw new Error(data.error || "Authentication failed");

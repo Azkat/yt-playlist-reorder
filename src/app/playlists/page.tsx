@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Playlist } from "@/lib/types";
 import { authFetchJson } from "@/lib/auth-fetch";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -21,13 +21,14 @@ export default function PlaylistsPage() {
     }
   }, [status, router]);
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchPlaylists();
+  const fetchPlaylists = useCallback(async () => {
+    // Check session state before making API call
+    if (!session?.accessToken || session?.error) {
+      setError("Authentication required");
+      setLoading(false);
+      return;
     }
-  }, [status]);
 
-  const fetchPlaylists = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -35,11 +36,26 @@ export default function PlaylistsPage() {
       const data = await authFetchJson("/api/playlists") as { playlists: Playlist[] };
       setPlaylists(data.playlists);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      
+      // If it's an auth error, don't retry automatically
+      if (errorMessage.includes("Authentication") || errorMessage.includes("401")) {
+        console.log("Authentication error detected, user needs to sign in again");
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [session]);
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.accessToken && !session?.error) {
+      fetchPlaylists();
+    } else if (status === "authenticated" && session?.error === "RefreshAccessTokenError") {
+      // Token refresh failed, redirect to signin
+      router.push("/auth/signin");
+    }
+  }, [status, session, router, fetchPlaylists]);
 
   const handlePlaylistClick = (playlistId: string) => {
     router.push(`/playlists/${playlistId}`);

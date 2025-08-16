@@ -43,6 +43,8 @@ async function refreshAccessToken(token: { refreshToken: string; [key: string]: 
     return {
       ...token,
       error: "RefreshAccessTokenError",
+      accessToken: undefined, // Clear invalid token
+      refreshToken: undefined, // Clear invalid refresh token
     };
   }
 }
@@ -85,6 +87,12 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
       session.error = token.error as string;
+      
+      // If token refresh failed, clear the session
+      if (token.error === "RefreshAccessTokenError") {
+        session.accessToken = undefined;
+      }
+      
       return session;
     },
   },

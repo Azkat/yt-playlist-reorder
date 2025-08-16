@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { PlaylistVideo } from "@/lib/types";
 import { authFetchJson } from "@/lib/auth-fetch";
+import { videoSelectionStorage } from "@/lib/video-selection-storage";
 
 export function usePlaylistEditor(playlistId: string) {
   const { data: session, status } = useSession();
@@ -46,7 +47,12 @@ export function usePlaylistEditor(playlistId: string) {
 
   const handleThumbnailClick = (video: PlaylistVideo) => {
     // Add autoplay flag to trigger playback
-    setSelectedVideo({ ...video, autoplay: true });
+    const videoWithAutoplay = { ...video, autoplay: true };
+    setSelectedVideo(videoWithAutoplay);
+    
+    // Save the selected video to persistent storage
+    videoSelectionStorage.saveSelectedVideo(playlistId, video);
+    
     // Clear player position input when switching videos
     setPlayerTargetPosition("");
   };
@@ -139,6 +145,19 @@ export function usePlaylistEditor(playlistId: string) {
     setIsSearching(false);
   };
 
+  // Function to restore selected video from storage
+  const restoreSelectedVideo = (currentVideos: PlaylistVideo[]) => {
+    const storedVideo = videoSelectionStorage.loadSelectedVideo(playlistId);
+    if (storedVideo && currentVideos.length > 0) {
+      const matchingVideo = videoSelectionStorage.findMatchingVideo(storedVideo, currentVideos);
+      if (matchingVideo) {
+        setSelectedVideo({ ...matchingVideo, autoplay: false }); // Restore without autoplay
+        return true; // Indicate that we restored a video
+      }
+    }
+    return false; // Indicate that no video was restored
+  };
+
   return {
     // Data
     videos,
@@ -173,6 +192,7 @@ export function usePlaylistEditor(playlistId: string) {
     setSelectedVideo,
     playerTargetPosition,
     setPlayerTargetPosition,
+    restoreSelectedVideo,
     
     // Search
     searchQuery,

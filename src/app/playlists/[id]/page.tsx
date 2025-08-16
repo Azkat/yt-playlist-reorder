@@ -24,7 +24,9 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
     editor.videos,
     editor.setVideos,
     editor.pendingChanges,
-    editor.setPendingChanges
+    editor.setPendingChanges,
+    pagination.currentPage,
+    pagination.videosPerPage
   );
 
   // Fetch videos on mount and when dependencies change
@@ -39,7 +41,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
         editor.setError,
         editor.isSearching,
         editor.searchQuery,
-        editor.setSelectedVideo
+        editor.restoreSelectedVideo
       );
     }
   }, [
@@ -67,7 +69,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
         editor.setError,
         editor.isSearching,
         editor.searchQuery,
-        editor.setSelectedVideo
+        editor.restoreSelectedVideo
       );
       
       // End refreshing state
@@ -127,7 +129,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
                   editor.setError,
                   editor.isSearching,
                   editor.searchQuery,
-                  editor.setSelectedVideo
+                  editor.restoreSelectedVideo
                 )}
                 className="mt-2 bg-youtube-red hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
               >
