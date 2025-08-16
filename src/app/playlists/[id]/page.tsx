@@ -112,6 +112,8 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
           onCancelChanges={editor.cancelChanges}
           onPlayerPositionChange={editor.setPlayerTargetPosition}
           onPlayerPositionSubmit={editor.handlePlayerPositionSubmit}
+          onUpdateQueuePosition={editor.updateQueuePosition}
+          onRemoveFromQueue={editor.removeFromQueue}
         />
 
         {/* Main Content */}
@@ -152,6 +154,7 @@ export default function PlaylistEditor({ params }: PlaylistEditorProps) {
             nextPageToken={pagination.nextPageToken}
             isSearching={editor.isSearching}
             onPositionChange={editor.handlePositionChange}
+            onAddToQueue={editor.addToQueue}
             onThumbnailClick={editor.handleThumbnailClick}
             onPageChange={pagination.handlePageChange}
             onPageSizeChange={pagination.handlePageSizeChange}

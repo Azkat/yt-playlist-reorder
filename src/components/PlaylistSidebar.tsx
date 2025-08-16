@@ -2,7 +2,7 @@ import { PlaylistVideo } from "@/lib/types";
 import PendingChangesQueue from "./PendingChangesQueue";
 
 interface PlaylistSidebarProps {
-  pendingChanges: Map<string, number>;
+  pendingChanges: Map<string, number | null>;
   videos: PlaylistVideo[];
   isExecuting: boolean;
   selectedVideo: PlaylistVideo | null;
@@ -13,6 +13,8 @@ interface PlaylistSidebarProps {
   onCancelChanges: () => void;
   onPlayerPositionChange: (position: string) => void;
   onPlayerPositionSubmit: (video: PlaylistVideo) => void;
+  onUpdateQueuePosition: (videoId: string, position: number) => void;
+  onRemoveFromQueue: (videoId: string) => void;
 }
 
 export default function PlaylistSidebar({
@@ -27,6 +29,8 @@ export default function PlaylistSidebar({
   onCancelChanges,
   onPlayerPositionChange,
   onPlayerPositionSubmit,
+  onUpdateQueuePosition,
+  onRemoveFromQueue,
 }: PlaylistSidebarProps) {
   return (
     <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full">
@@ -80,9 +84,12 @@ export default function PlaylistSidebar({
             <PendingChangesQueue
               pendingChanges={pendingChanges}
               videos={videos}
+              totalVideos={totalVideos}
               isExecuting={isExecuting}
               onExecuteChanges={onExecuteChanges}
               onCancelChanges={onCancelChanges}
+              onUpdateQueuePosition={onUpdateQueuePosition}
+              onRemoveFromQueue={onRemoveFromQueue}
             />
           </div>
         </div>

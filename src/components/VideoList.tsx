@@ -7,7 +7,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
 interface VideoListProps {
   videos: PlaylistVideo[];
-  pendingChanges: Map<string, number>;
+  pendingChanges: Map<string, number | null>;
   processingVideos: Set<string>;
   isRefreshing: boolean;
   isExecuting: boolean;
@@ -19,6 +19,7 @@ interface VideoListProps {
   nextPageToken?: string;
   isSearching: boolean;
   onPositionChange: (videoId: string, newPosition: number) => void;
+  onAddToQueue: (videoId: string) => void;
   onThumbnailClick: (video: PlaylistVideo) => void;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
@@ -39,6 +40,7 @@ export default function VideoList({
   nextPageToken,
   isSearching,
   onPositionChange,
+  onAddToQueue,
   onThumbnailClick,
   onPageChange,
   onPageSizeChange,
@@ -99,6 +101,7 @@ export default function VideoList({
                   currentPosition={actualPosition}
                   totalVideos={totalVideos}
                   onPositionChange={onPositionChange}
+                  onAddToQueue={onAddToQueue}
                   isPending={isPending}
                   isProcessing={isProcessing}
                   onThumbnailClick={onThumbnailClick}

@@ -5,8 +5,8 @@ import { PlaylistVideo } from "@/lib/types";
 export function useDragAndDrop(
   videos: PlaylistVideo[],
   setVideos: (videos: PlaylistVideo[]) => void,
-  pendingChanges: Map<string, number>,
-  setPendingChanges: (changes: Map<string, number>) => void,
+  pendingChanges: Map<string, number | null>,
+  setPendingChanges: (changes: Map<string, number | null>) => void,
   currentPage: number,
   videosPerPage: number
 ) {

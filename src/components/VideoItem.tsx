@@ -9,6 +9,7 @@ interface VideoItemProps {
   currentPosition: number;
   totalVideos: number;
   onPositionChange: (videoId: string, newPosition: number) => void;
+  onAddToQueue: (videoId: string) => void;
   isPending: boolean;
   isProcessing: boolean;
   onThumbnailClick: (video: PlaylistVideo) => void;
@@ -20,6 +21,7 @@ export default function VideoItem({
   currentPosition,
   totalVideos,
   onPositionChange,
+  onAddToQueue,
   isPending,
   isProcessing,
   onThumbnailClick,
@@ -52,6 +54,10 @@ export default function VideoItem({
     }
   };
 
+  const handleAddToQueue = () => {
+    onAddToQueue(video.id);
+  };
+
   const isValidPosition = () => {
     const position = parseInt(targetPosition, 10);
     return (
@@ -61,6 +67,10 @@ export default function VideoItem({
       position !== currentPosition
     );
   };
+
+  const hasPosition = targetPosition.trim() !== "";
+  const canMove = hasPosition && isValidPosition();
+  const canQueue = !isPending && !isProcessing;
 
   const handleTitleClick = () => {
     const youtubeUrl = `https://www.youtube.com/watch?v=${video.videoId}`;
@@ -177,17 +187,31 @@ export default function VideoItem({
             disabled={isProcessing}
             className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
           />
-          <button
-            onClick={handlePositionSubmit}
-            disabled={!isValidPosition() || isProcessing}
-            className={`px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1 ${
-              isValidPosition() && !isProcessing
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            <span>{isPending ? "Pending" : "Move"}</span>
-          </button>
+          {hasPosition ? (
+            <button
+              onClick={handlePositionSubmit}
+              disabled={!canMove}
+              className={`px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1 ${
+                canMove
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              <span>{isPending ? "Pending" : "Move"}</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleAddToQueue}
+              disabled={!canQueue}
+              className={`px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1 ${
+                canQueue
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              <span>{isPending ? "Queued" : "Queue"}</span>
+            </button>
+          )}
         </div>
       </div>
 

@@ -18,7 +18,7 @@ export function usePlaylistEditor(playlistId: string) {
   const [error, setError] = useState<string | null>(null);
 
   // State for changes management
-  const [pendingChanges, setPendingChanges] = useState<Map<string, number>>(new Map());
+  const [pendingChanges, setPendingChanges] = useState<Map<string, number | null>>(new Map());
   const [isExecuting, setIsExecuting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [processingVideos, setProcessingVideos] = useState<Set<string>>(new Set());
@@ -39,10 +39,30 @@ export function usePlaylistEditor(playlistId: string) {
     }
   }, [status, router]);
 
-  const handlePositionChange = (videoId: string, newPosition: number) => {
+  const handlePositionChange = (videoId: string, newPosition: number | null) => {
     const newChanges = new Map(pendingChanges);
     newChanges.set(videoId, newPosition);
     setPendingChanges(newChanges);
+  };
+
+  const addToQueue = (videoId: string) => {
+    const newChanges = new Map(pendingChanges);
+    newChanges.set(videoId, null); // Add to queue without specific position
+    setPendingChanges(newChanges);
+  };
+
+  const removeFromQueue = (videoId: string) => {
+    const newChanges = new Map(pendingChanges);
+    newChanges.delete(videoId);
+    setPendingChanges(newChanges);
+  };
+
+  const updateQueuePosition = (videoId: string, position: number) => {
+    const newChanges = new Map(pendingChanges);
+    if (newChanges.has(videoId)) {
+      newChanges.set(videoId, position);
+      setPendingChanges(newChanges);
+    }
   };
 
   const handleThumbnailClick = (video: PlaylistVideo) => {
@@ -81,14 +101,23 @@ export function usePlaylistEditor(playlistId: string) {
   const executeChanges = async (onRefresh?: () => Promise<void>) => {
     setIsExecuting(true);
     setError(null);
-    const changeCount = pendingChanges.size;
+    
+    // Only process changes with valid positions (not null)
+    const validChanges = Array.from(pendingChanges.entries()).filter(([, position]) => position !== null);
+    const changeCount = validChanges.length;
+
+    if (changeCount === 0) {
+      setError("No valid position changes to apply. Please specify positions for queued items.");
+      setIsExecuting(false);
+      return;
+    }
 
     try {
       // Clear pending changes and start refreshing
       setPendingChanges(new Map());
       setIsRefreshing(true);
 
-      const updates = Array.from(pendingChanges.entries()).map(([playlistItemId, position]) => {
+      const updates = validChanges.map(([playlistItemId, position]) => {
         const video = videos.find(v => v.id === playlistItemId);
         if (!video) {
           console.error(`Video not found for playlistItemId: ${playlistItemId}`);
@@ -97,7 +126,7 @@ export function usePlaylistEditor(playlistId: string) {
         return {
           playlistItemId: video.id, // This is the YouTube playlist item ID
           videoId: video.videoId,   // This is the actual YouTube video ID
-          position,
+          position: position as number, // We know it's not null from filter above
         };
       }).filter(Boolean);
 
@@ -200,6 +229,9 @@ export function usePlaylistEditor(playlistId: string) {
     
     // Actions
     handlePositionChange,
+    addToQueue,
+    removeFromQueue,
+    updateQueuePosition,
     handleThumbnailClick,
     isPlayerPositionValid,
     handlePlayerPositionSubmit,
